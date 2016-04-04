@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WunderBraSolver
@@ -46,8 +47,10 @@ namespace WunderBraSolver
     {
         // words
         IReadOnlyList<string> _words = new List<string>();
-        // found words
-        List<string> _found = new List<string>();
+
+        // found words count
+        int _wordCount;
+
         // wunder cube letters
         static char[,,] _letters;
 
@@ -70,7 +73,7 @@ namespace WunderBraSolver
         public int Solve()
         {
             FindWords();
-            return _found.Count;
+            return _wordCount;
         }
 
         // find all words in cube
@@ -81,11 +84,9 @@ namespace WunderBraSolver
                 // find starting positions
                 var starts = FindStarts(word[0]);
 
-                var found = false;
                 if (starts.Count() > 0 && word.Length == 1)
                 {
-                    found = true;
-                    _found.Add(word);
+                    Interlocked.Increment(ref _wordCount);
                     return;
                 }
                 foreach (var start in starts)
@@ -94,14 +95,10 @@ namespace WunderBraSolver
                     // find subsequent letters
                     if (FindWord(start, word, 1, usedLetters))
                     {
-                        if (!_found.Contains(word))
-                        {
-                            found = true;
-                            break;
-                        }
+                        Interlocked.Increment(ref _wordCount);
+                        break;
                     }
                 }
-                if (found) _found.Add(word);
             }
             );
         }
@@ -182,7 +179,7 @@ namespace WunderBraSolver
         // check if position contains letter
         static bool ContainsLetter(LetterIndex pos, char letter) => (_letters[pos.I, pos.J, pos.K] == letter);
 
-        // init letters to
+        // init letters 
         static void InitWordCube()
         {
             _letters = new char[,,]

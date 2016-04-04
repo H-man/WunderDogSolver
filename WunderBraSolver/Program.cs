@@ -10,11 +10,13 @@ namespace WunderBraSolver
         static void Main()
         {
             var words = DownloadWordList();
-            var solver = new Solver(words);
 
             var sw = new Stopwatch();
             sw.Start();
+
+            var solver = new Solver(words);
             var wordCount = solver.Solve();
+
             sw.Stop();
 
             Console.WriteLine($"Found {wordCount} in {sw.ElapsedMilliseconds} ms");
